@@ -1,11 +1,21 @@
 import User from "../models/user.js";
 import { hashPassword, comparePassword } from "../utils/auth.js";
 import jwt from "jsonwebtoken";
+import { validationResult } from 'express-validator';
+
+
 
 export const register = async (req, res) => {
   try {
     // console.log(req.body);
     const { name, email, password } = req.body;
+
+    // Validación utilizando express-validator
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
     //validacion
     if (!name) {
       return res.status(400).send("El nombre es obligatorio");
