@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import { hashPassword, comparePassword } from "../utils/auth.js";
+import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
@@ -7,7 +8,7 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
     //validacion
     if (!name) {
-      return res.status(400).send("Name is required");
+      return res.status(400).send("El nombre es obligatorio");
     }
 
     if (!password || password.length < 6) {
@@ -39,6 +40,43 @@ export const register = async (req, res) => {
 
 
   } catch (err) {
+    console.log(err);
+    return res.status(400).send("Error. Intenta de nuevo.");
+  }
+};
+
+
+export const login = async (req, res) => {
+
+  try {
+    // console.log(req.body);
+    //Revisar si el usuario existe
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).exec();
+    if (!user) {
+      return res.status(400).send("No existe el usuario");
+    }
+    //Revisamos la contraseña
+    const match = await comparePassword(password, user.password);
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    //Retornamos el token y el usuario
+    user.password = undefined;
+    //Enviamos el token en una cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      // secure: true, //solo funciona en https
+    });
+
+    //Enviamos el usuario como json
+    res.json(user);
+
+  }
+
+  catch (err) {
     console.log(err);
     return res.status(400).send("Error. Intenta de nuevo.");
   }
