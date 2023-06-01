@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SyncOutlined } from "@ant-design/icons";
@@ -9,16 +9,22 @@ import { useRouter } from "next/router";
 
 const Login = () => {
 
-    const [email, setEmail] = useState("correoPrueba@gmail.com");
-    const [password, setPassword] = useState("claveDePrueba");
+    const [email, setEmail] = useState("luisbalarezo@gmail.com");
+    const [password, setPassword] = useState("luisbalarezo");
     const [loading, setLoading] = useState(false);
 
     //state
     const { state, dispatch } = useContext(Context);
+    const { user } = state;
     console.log("State", state);
 
     //router
     const router = useRouter();
+
+    useEffect(() => {
+        if (user !== null) router.push("/");
+    }, [user]);
+
 
     const handleSubmit = async (e) => {
 
