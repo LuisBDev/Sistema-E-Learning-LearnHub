@@ -7,7 +7,7 @@ import { validationResult } from 'express-validator';
 
 export const register = async (req, res) => {
   try {
-    // console.log(req.body);
+
     const { name, email, password } = req.body;
 
     // Validación utilizando express-validator
@@ -15,7 +15,7 @@ export const register = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
     //validacion
     if (!name) {
       return res.status(400).send("El nombre es obligatorio");
@@ -59,7 +59,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
 
   try {
-    // console.log(req.body);
+
     //Revisar si el usuario existe
     const { email, password } = req.body;
     const user = await User.findOne({ email }).exec();
@@ -78,7 +78,7 @@ export const login = async (req, res) => {
     //Enviamos el token en una cookie
     res.cookie("token", token, {
       httpOnly: true,
-      // secure: true, //solo funciona en https
+
     });
 
     //Enviamos el usuario como json
@@ -89,5 +89,14 @@ export const login = async (req, res) => {
   catch (err) {
     console.log(err);
     return res.status(400).send("Error. Intenta de nuevo.");
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.json({ message: "Cerraste sesión correctamente" });
+  } catch (err) {
+    console.log(err);
   }
 };

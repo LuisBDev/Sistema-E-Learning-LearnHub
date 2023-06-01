@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, register } from '../controllers/auth';
+import { login, register, logout } from '../controllers/auth';
 import { body } from 'express-validator';
 
 
@@ -21,5 +21,6 @@ const registerValidationRules = [
 
 router.post('/register', registerValidationRules, register);
 router.post('/login', login);
+router.get('/logout', logout);
 
 module.exports = router;
