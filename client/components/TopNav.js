@@ -5,17 +5,16 @@ import {
   AppstoreOutlined,
   CoffeeOutlined,
   LoginOutlined,
-  LogoutOutlined,
-  UserAddOutlined
+  UserAddOutlined,
+  CarryOutOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
-
 import { Context } from "../context";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
-
-const { Item, SubMenu } = Menu;
+const { Item, SubMenu, ItemGroup } = Menu;
 
 const TopNav = () => {
   const [current, setCurrent] = useState("");
@@ -32,47 +31,109 @@ const TopNav = () => {
   const logout = async () => {
     dispatch({ type: "LOGOUT" });
     window.localStorage.removeItem("user");
-    const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/logout`)
-    toast(data.message);
-    router.push("/login");
+    try {
+      const { data } = await axios.get("/api/logout");
+      toast(data.message);
+      await router.push("/login");
+    } catch (error) {
+      // Manejar el error de la redirección
+      console.error("Error al redirigir a la página de inicio de sesión:", error);
+      // Realizar acciones adicionales o mostrar un mensaje de error al usuario
+    }
   };
 
 
-
   return (
-    <Menu mode="horizontal" selectedKeys={[current]} style={{ display: 'block' }}>
-      <Item key="/" onClick={(e) => setCurrent(e.key)} icon={<AppstoreOutlined />}>
+    <Menu mode="horizontal" selectedKeys={[current]} className="mb-2" theme="dark">
+      <Item
+        key="/"
+        onClick={(e) => setCurrent(e.key)}
+        icon={<AppstoreOutlined />}
+      >
         <Link href="/">
           <a>App</a>
         </Link>
       </Item>
 
+      {user?.role?.includes("Instructor") ? (
+        <Item
+          key="/instructor/course/create"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<CarryOutOutlined />}
+        >
+          <Link href="/instructor/course/create">
+            <a>Crear Curso</a>
+          </Link>
+        </Item>
+      ) : (
+        <Item
+          key="/user/become-instructor"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<TeamOutlined />}
+        >
+          <Link href="/user/become-instructor">
+            <a>Conviértete en Instructor</a>
+          </Link>
+        </Item>
+      )}
+
       {user === null && (
         <>
-          <Item key="/login" onClick={(e) => setCurrent(e.key)} icon={<LoginOutlined />}>
+          <Item
+            className="float-right"
+            key="/register"
+            onClick={(e) => setCurrent(e.key)}
+            icon={<UserAddOutlined />}
+          >
+            <Link href="/register">
+              <a>Register</a>
+            </Link>
+          </Item>
+
+          <Item
+            className="float-right"
+            key="/login"
+            onClick={(e) => setCurrent(e.key)}
+            icon={<LoginOutlined />}
+          >
             <Link href="/login">
               <a>Login</a>
             </Link>
           </Item>
-
-          <Item key="/register" onClick={(e) => setCurrent(e.key)} icon={<UserAddOutlined />}>
-            <Link href="/register">
-              <a>Registrar</a>
-            </Link>
-          </Item>
-
         </>
       )}
 
       {user !== null && (
-        <SubMenu icon={<CoffeeOutlined />} title={user.name} style={{ float: 'right' }}>
-          <Item onClick={logout} icon={<LogoutOutlined />} style={{ float: 'right' }} >
-            Logout
-          </Item>
+        <SubMenu
+          icon={<CoffeeOutlined />}
+          title={user?.name}
+          className="float-right"
+        >
+          <ItemGroup>
+            <Item key="/user">
+              <Link href="/user">
+                <a>Dashboard</a>
+              </Link>
+            </Item>
+            <Item onClick={() => logout()} key="logout">
+              Logout
+            </Item>
+          </ItemGroup>
         </SubMenu>
-
       )}
 
+      {user?.role?.includes("Instructor") && (
+        <Item
+          key="/instructor"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<TeamOutlined />}
+          className="float-right"
+        >
+          <Link href="/instructor">
+            <a>Instructor</a>
+          </Link>
+        </Item>
+      )}
     </Menu>
   );
 };

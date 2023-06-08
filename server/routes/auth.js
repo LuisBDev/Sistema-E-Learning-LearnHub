@@ -1,26 +1,34 @@
-import express from 'express';
-import { login, register, logout } from '../controllers/auth';
-import { body } from 'express-validator';
-
-
+import express from "express";
 
 const router = express.Router();
 
-// Validación de los datos de registro
-const registerValidationRules = [
-    body('name').notEmpty().withMessage('El nombre es obligatorio'),
-    body('email').isEmail().withMessage('El email no es válido'),
-    body('password')
-        .isLength({ min: 6 })
-        .withMessage('La contraseña debe tener al menos 6 caracteres'),
-];
+// middleware
+import { requireSignin } from "../middlewares";
+
+// controllers
+import {
+    register,
+    login,
+    logout,
+    currentUser,
+    forgotPassword,
+    resetPassword,
+} from "../controllers/auth";
+// NOSONAR_START
 
 
 
-//controllers
 
-router.post('/register', registerValidationRules, register);
-router.post('/login', login);
-router.get('/logout', logout);
+router.post("/register", register);
+router.post("/login", login);
+router.get("/logout", logout);
+router.get("/current-user", requireSignin, currentUser);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 
+
+
+
+
+// NOSONAR_END
 module.exports = router;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SyncOutlined } from "@ant-design/icons";
@@ -7,47 +7,48 @@ import { Context } from "../context";
 import { useRouter } from "next/router";
 
 const Register = () => {
-  const [name, setName] = useState("userPrueba");
-  const [email, setEmail] = useState("luisbalarezo@gmail.com");
-  const [password, setPassword] = useState("luisbalarezo");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
-
   const { state: { user } } = useContext(Context);
-
+  const router = useRouter();
 
   useEffect(() => {
     if (user !== null) router.push("/");
   }, [user]);
 
 
-
   const handleSubmit = async (e) => {
+    e.preventDefault();
 
     try {
       setLoading(true);
-      e.preventDefault();
-
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API}/register`, {
+      const { data } = await axios.post(`/api/register`, {
         name,
         email,
         password,
       });
-      toast.success("Registro exitoso. Por favor inicia sesión.");
+
+      toast("Registro exitoso. Por favor, inicia sesión.");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setLoading(false);
+      console.log(data);
+    } catch (err) {
+      toast(err.response.data);
       setLoading(false);
     }
-    catch (err) {
-      toast.error(err.response.data);
-      setLoading(false);
 
-    }
-
+    return Promise.resolve();
   };
+
 
   return (
     <>
-      <h1 className="jumbotron text-center bg-primary square">Registro de Usuario</h1>
+      <h1 className="jumbotron text-center bg-primary square">Registro</h1>
 
       <div className="container col-md-4 offset-md-4 pb-5">
         <form onSubmit={handleSubmit}>
@@ -56,7 +57,7 @@ const Register = () => {
             className="form-control mb-4 p-4"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter name"
+            placeholder="Ingresa tu nombre"
             required
           />
 
@@ -65,7 +66,7 @@ const Register = () => {
             className="form-control mb-4 p-4"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter email"
+            placeholder="Ingresa tu correo electrónico"
             required
           />
 
@@ -74,24 +75,27 @@ const Register = () => {
             className="form-control mb-4 p-4"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
+            placeholder="Ingresa tu contraseña"
             required
           />
 
-          <div className="d-grid">
-            <button type="submit" className="btn btn-primary"
-              disabled={!name || !email || !password || loading}>
-              {loading ? <SyncOutlined spin /> : "Submit"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="btn btn-block btn-primary"
+            disabled={!name || !email || !password || loading}
+          >
+            {loading ? <SyncOutlined spin /> : "Enviar"}
+          </button>
         </form>
+
         <p className="text-center p-3">
-          Ya está registrado? {" "}
+          ¿Ya tienes una cuenta?{" "}
           <Link href="/login">
             <a>Iniciar sesión</a>
           </Link>
         </p>
       </div>
+
     </>
   );
 };
