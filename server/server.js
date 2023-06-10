@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import { readdirSync } from "fs";
 import mongoose from "mongoose";
 import csrf from "csurf";
 import cookieParser from "cookie-parser";
